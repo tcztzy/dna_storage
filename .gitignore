@@ -1,0 +1,8 @@
+images*
+team0001(选手示例文件）*
+*.pdf
+__pycache__/
+.DS_Store
+.python-version
+record.txt
+*.bmp

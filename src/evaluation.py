@@ -2,8 +2,9 @@ __author__ = "Zhang, Haoling [zhanghaoling@genomics.cn]"
 
 
 from copy import deepcopy
-from datetime import datetime
 from cv2 import imread
+from datetime import datetime
+from numpy import mean
 from random import seed, shuffle, random, randint, choice
 from skimage.metrics import structural_similarity
 
@@ -343,7 +344,7 @@ class EvaluationPipeline:
         density_score = 1 - d_number / b_number if d_number < b_number else 0
 
         # calculate the compatibility score.
-        maximum_homopolymer, maximum_gc_bias = 1, 0
+        h_statistics, gc_statistics = [], []
         for dna_sequence in dna_sequences:
             homopolymer = 1
             while True:
@@ -356,11 +357,15 @@ class EvaluationPipeline:
                     homopolymer += 1
                 else:
                     break
-            maximum_homopolymer = max(homopolymer, maximum_homopolymer)
             gc_bias = abs((dna_sequence.count("G") + dna_sequence.count("C")) / len(dna_sequence) - 0.5)
-            maximum_gc_bias = max(gc_bias, maximum_gc_bias)
+
+            h_statistics.append(homopolymer)
+            gc_statistics.append(gc_bias)
+
+        maximum_homopolymer, maximum_gc_bias = mean(h_statistics), mean(gc_statistics)
         h_score = (1.0 - (maximum_homopolymer - 1) / 5.0) / 2.0 if maximum_homopolymer < 6 else 0
         c_score = (1.0 - maximum_gc_bias / 0.3) / 2.0 if maximum_gc_bias < 0.3 else 0
+
         compatibility_score = h_score + c_score
 
         # calculate the recovery score.

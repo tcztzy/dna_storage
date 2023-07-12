@@ -1,4 +1,14 @@
-import numba as nb
+try:
+    import numba as nb
+except ImportError:
+    class nb:
+        prange = range
+        @staticmethod
+        def njit(*args, **kwargs):
+            def wrapper(func):
+                return func
+
+            return wrapper
 import numpy as np
 
 from .lir_basis import biggest_span_in_span_map
